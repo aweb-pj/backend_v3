@@ -11,4 +11,6 @@ urlpatterns = [
     url(r'^node/(?P<node_id>\w+)/materials$',views.get_materials),
     url(r'^node/(?P<node_id>\w+)/material$',views.MaterialFileUploadView.as_view()),
     url(r'^node/(?P<node_id>\w+)/material/(?P<material_id>\w+)$',views.MaterialFileDownloadView.as_view()),
+
+
 ]

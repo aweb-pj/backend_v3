@@ -249,3 +249,33 @@ class MaterialFileDownloadView(APIView):
             response.write(content)
             return response
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def statistics_all(self,request):
+    input_data = request.data
+
+
+    return
+
+@api_view(['POST'])
+def statistics_query(self,request):
+    input_data = request.data
+    question_id = input_data['question_id']
+    questions = Question.objects.filter(id = question_id)
+    if questions is None:
+        return Response(status = status.HTTP_400_BAD_REQUEST)
+
+    question = questions[0]
+
+    answers_all = Answer.objects.filter(question = question)
+    if len(answers_all) == 0:
+        return Response(status = status.HTTP_400_BAD_REQUEST)
+
+    answers_corrert = Answer.objects.filter(question = question,answer = question.correct_answer)
+
+    accuracy = len(answers_corrert)/len(answers_all)
+    data = {
+        'accuracy':accuracy
+    }
+    return Response(data,status = status.HTTP_200_OK)
+
