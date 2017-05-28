@@ -253,9 +253,30 @@ class MaterialFileDownloadView(APIView):
 @api_view(['POST'])
 def statistics_all(self,request):
     input_data = request.data
+    node_id = input_data['node_id']
+    node_homeworks = NodeHomework.objects.filter(node_id = node_id)
+    if node_homeworks is None:
+        return Response(status.HTTP_400_BAD_REQUEST)
 
+    node_homework = node_homeworks[0]
+    questions = Question.objects.filter(node_homework = node_homework)
+    correct_accuracy = 0
+    if len(questions) == 0:
+        accuracy = 0
+    else:
+        for question in questions:
+            answers_all = Answer.objects.filter(question=question)
+            if len(answers_all) == 0:
+                correct_accuracy += 0
+            else:
+                answers_corrert = Answer.objects.filter(question=question, answer=question.correct_answer)
+                correct_accuracy += len(answers_corrert) / len(answers_all)
+        accuracy = correct_accuracy/len(questions)
 
-    return
+    data = {
+        'accuracy': accuracy
+    }
+    return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def statistics_query(self,request):
@@ -269,13 +290,106 @@ def statistics_query(self,request):
 
     answers_all = Answer.objects.filter(question = question)
     if len(answers_all) == 0:
+        accuracy = 0
+    else:
+        answers_correct = Answer.objects.filter(question = question,answer = question.correct_answer)
+        accuracy = len(answers_correct)/len(answers_all)
+    data = {
+        'accuracy': accuracy
+    }
+    return Response(data,status = status.HTTP_200_OK)
+
+@api_view(['POST'])
+def statistics_student_all(request):
+    input_data = request.data
+    student_id = input_data['student_id']
+    students = User.objects.filter(id = student_id,role = 'STUDENT')
+    if students is None:
         return Response(status = status.HTTP_400_BAD_REQUEST)
 
-    answers_corrert = Answer.objects.filter(question = question,answer = question.correct_answer)
+    student = students[0]
+    homework_answers = HomeworkAnswer.objects.filter(student = student)
+    correct = 0
+    all = 0
+    for homework_answer in homework_answers:
+        answers = Answer.objects.filter(homework_answer = homework_answer)
+        all += len(answers)
+        for answer in answers:
+            if answer.answer == answer.question.correct_answer:
+                correct += 1
+    if all == 0:
+        accuracy = 0
+    else:
+        accuracy = correct/all
 
-    accuracy = len(answers_corrert)/len(answers_all)
     data = {
         'accuracy':accuracy
     }
     return Response(data,status = status.HTTP_200_OK)
 
+@api_view(['POST'])
+def statistics_student_node_query(request):
+    input_data = request.data
+    student_id = input_data['student_id']
+    node_id = input_data['node_id']
+
+    students = User.objects.filter(id=student_id, role='STUDENT')
+    if students is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    nodeHomeworks = NodeHomework.objects.filter(node_id = node_id)
+    if nodeHomeworks is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    student = students[0]
+    node_homework = nodeHomeworks[0]
+
+    homework_answers = HomeworkAnswer.objects.filter(student=student,node_homework = node_homework)
+
+    if len(homework_answers) == 0:
+        accuracy = 0
+    else:
+        homework_answer = homework_answers[0]
+        answers = Answer.objects.filter(homework_answer=homework_answer)
+        all = len(answers)
+        correct = 0
+        for answer in answers:
+            if answer.answer == answer.question.correct_answer:
+                correct += 1
+        if all == 0:
+            accuracy = 0
+        else:
+            accuracy = correct/all
+
+    data = {
+        'accuracy':accuracy
+    }
+    return Response(data,status = status.HTTP_200_OK)
+
+@api_view(['POST'])
+def question_check(request):
+    input_data = request.data
+    student_id = input_data['student_id']
+    question_id = input_data['question_id']
+
+    students = User.objects.filter(id=student_id, role='STUDENT')
+    if students is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    questions = Question.objects.filter(id=question_id)
+    if questions is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    student = students[0]
+    question = questions[0]
+    answers = Answer.objects.filter(homework_answer__student = student,question = question)
+    if answers is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    answer = answers[0]
+    if answer.answer == question.correct_answer:
+        result = 'right'
+    else:
+        result = 'wrong'
+
+    data = {
+        'result':result
+    }
+    return Response(data,status = status.HTTP_200_OK)
