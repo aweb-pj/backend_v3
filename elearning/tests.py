@@ -185,6 +185,7 @@ class MyTests(APITestCase):
     def CreateHomework(self,node_id):
         self.LoginAsTeacher()
         homework = {
+            "node_id":node_id,
             "published": False,
             "questions": [
                 {
@@ -271,4 +272,82 @@ class MyTests(APITestCase):
     def test_material(self):
         pass
 
+    def CreateAnswer(self):
+        self.LoginAsStudent()
+        url = '/node/1/homeworkanswer'
+        student = {
+            'id': '12345678',
+            'password': '12345678',
+            'role': 'STUDENT',
+            'name': 'FirstStudent'
+        }
+        homework_answer = {
+            "student":student,
+            "answers": [
+                {
+                    "answer": "ABCD",
+                    "question": 1
+                },
+                {
+                    "answer": "ABCD",
+                    "question": 2
+                },
+                {
+                    "answer": "ABCD",
+                    "question": 3
+                },
+                {
+                    "answer": "ABCD",
+                    "question": 4
+                }
+            ]
+        }
+        self.client.post(url, homework_answer)
+        self.Logout()
+
+    def init(self):
+        self.Register()
+        self.CreateHomework(1)
+        self.CreateAnswer()
+        self.LoginAsStudent()
+
+    def test_statistics_check_qusetion(self):
+        self.init()
+        url = '/question/check'
+        post_data = {
+            "student_id":12345678,
+            "question_id":2
+        }
+        expected_result = {
+            "result":'right'
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_result)
+        post_data = {
+            "student_id": 12345678,
+            "question_id": 1
+        }
+        expected_result = {
+            "result": 'wrong'
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_result)
+
+    def test_statistics_all(self):
+        self.init()
+        url = '/statistics/all'
+        post_data = {
+            "node_id":1
+        }
+        expected_result = {
+            'accuracy': 0.5
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_result)
+
+    def test_statistics_query(self):
+        self.init()
 

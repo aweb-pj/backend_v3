@@ -1,3 +1,4 @@
+from __future__ import division
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.parsers import *
@@ -7,6 +8,7 @@ from elearning.serializers import *
 from rest_framework.views import APIView
 import json
 import os
+
 # Create your views here.
 
 
@@ -251,11 +253,11 @@ class MaterialFileDownloadView(APIView):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
-def statistics_all(self,request):
+def statistics_all(request):
     input_data = request.data
     node_id = input_data['node_id']
     node_homeworks = NodeHomework.objects.filter(node_id = node_id)
-    if node_homeworks is None:
+    if len(node_homeworks) == 0:
         return Response(status.HTTP_400_BAD_REQUEST)
 
     node_homework = node_homeworks[0]
@@ -274,8 +276,9 @@ def statistics_all(self,request):
         accuracy = correct_accuracy/len(questions)
 
     data = {
-        'accuracy': accuracy
+        'accuracy': round(accuracy,2)
     }
+    print('data:'+str(data))
     return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
@@ -366,16 +369,17 @@ def statistics_student_node_query(request):
     return Response(data,status = status.HTTP_200_OK)
 
 @api_view(['POST'])
-def question_check(request):
+def check_question(request):
     input_data = request.data
     student_id = input_data['student_id']
+    #print('student_id'+str(student_id))
     question_id = input_data['question_id']
 
     students = User.objects.filter(id=student_id, role='STUDENT')
-    if students is None:
+    if len(students) == 0 :
         return Response(status=status.HTTP_400_BAD_REQUEST)
     questions = Question.objects.filter(id=question_id)
-    if questions is None:
+    if  len(questions) == 0 :
         return Response(status=status.HTTP_400_BAD_REQUEST)
     student = students[0]
     question = questions[0]

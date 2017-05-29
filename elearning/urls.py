@@ -11,6 +11,9 @@ urlpatterns = [
     url(r'^node/(?P<node_id>\w+)/materials$',views.get_materials),
     url(r'^node/(?P<node_id>\w+)/material$',views.MaterialFileUploadView.as_view()),
     url(r'^node/(?P<node_id>\w+)/material/(?P<material_id>\w+)$',views.MaterialFileDownloadView.as_view()),
-
-
+    url(r'^statistics/all$',views.statistics_all),
+    url(r'^statistics/query$', views.statistics_query),
+    url(r'^statistics/students/all$',views.statistics_student_all),
+    url(r'^statistics/students/query$',views.statistics_student_node_query),
+    url(r'^question/check$', views.check_question),
 ]
