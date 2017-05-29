@@ -347,3 +347,101 @@ download file as attachment
 no corresponding material
  
 {}
+
+## Check Question [/question/check]
+[POST]
+
++ Request
+``` json
+{
+	"student_id":12345678,
+	"question_id":2
+}
+```
++ Response 200
+``` json
+{
+	"result":'right' or 'wrong'
+}
+```
++ Response 400
+```
+request data error
+```
+
+## Average accurary of all answer of one node [/statistics/all]
+[POST]
++ Request
+``` json
+{
+	"node_id":1,
+}
+```
++ Response 200
+``` json
+{
+	"accuracy":0.5
+}
+```
++ Response 400
+```
+request data error
+```
+
+## Average accurary of all answer of one question [/statistics/query]
+[POST]
++ Request
+``` json
+{
+	"question_id":1,
+}
+```
++ Response 200
+``` json
+{
+	"accuracy":0.5
+}
+```
++ Response 400
+```
+request data error
+```
+
+## Average accurary of all answer of one student [statistics/students/all]
+[POST]
++ Request
+``` json
+{
+	"student_id":12345678,
+}
+```
++ Response 200
+``` json
+{
+	"accuracy":0.5
+}
+```
++ Response 400
+```
+request data error
+```
+
+## Average accurary of all answer of one node of one student [statistics/students/query]
+[POST]
++ Request
+``` json
+{
+	"student_id":12345678,
+	"node_id":1
+}
+```
++ Response 200
+``` json
+{
+	"accuracy":0.5
+}
+```
++ Response 400
+```
+request data error
+```
