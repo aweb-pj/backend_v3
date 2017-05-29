@@ -278,15 +278,15 @@ def statistics_all(request):
     data = {
         'accuracy': round(accuracy,2)
     }
-    print('data:'+str(data))
+    #print('data:'+str(data))
     return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-def statistics_query(self,request):
+def statistics_query(request):
     input_data = request.data
     question_id = input_data['question_id']
     questions = Question.objects.filter(id = question_id)
-    if questions is None:
+    if len(questions) == 0:
         return Response(status = status.HTTP_400_BAD_REQUEST)
 
     question = questions[0]
@@ -298,7 +298,7 @@ def statistics_query(self,request):
         answers_correct = Answer.objects.filter(question = question,answer = question.correct_answer)
         accuracy = len(answers_correct)/len(answers_all)
     data = {
-        'accuracy': accuracy
+        'accuracy': round(accuracy,2)
     }
     return Response(data,status = status.HTTP_200_OK)
 
@@ -307,7 +307,7 @@ def statistics_student_all(request):
     input_data = request.data
     student_id = input_data['student_id']
     students = User.objects.filter(id = student_id,role = 'STUDENT')
-    if students is None:
+    if len(students) == 0:
         return Response(status = status.HTTP_400_BAD_REQUEST)
 
     student = students[0]
@@ -326,7 +326,7 @@ def statistics_student_all(request):
         accuracy = correct/all
 
     data = {
-        'accuracy':accuracy
+        'accuracy':round(accuracy,2)
     }
     return Response(data,status = status.HTTP_200_OK)
 
@@ -337,10 +337,10 @@ def statistics_student_node_query(request):
     node_id = input_data['node_id']
 
     students = User.objects.filter(id=student_id, role='STUDENT')
-    if students is None:
+    if len(students) == 0:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     nodeHomeworks = NodeHomework.objects.filter(node_id = node_id)
-    if nodeHomeworks is None:
+    if len(nodeHomeworks) == 0:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     student = students[0]

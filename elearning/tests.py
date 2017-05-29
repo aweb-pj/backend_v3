@@ -350,4 +350,42 @@ class MyTests(APITestCase):
 
     def test_statistics_query(self):
         self.init()
+        url = '/statistics/query'
+        post_data = {
+            "question_id": 2
+        }
+        expected_result = {
+            'accuracy': 1.0
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_result)
+
+    def test_statistics_student_all(self):
+        self.init()
+        url = '/statistics/students/all'
+        post_data = {
+            "student_id": 12345678
+        }
+        expected_result = {
+            'accuracy': 0.5
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_result)
+
+    def test_statistics_student_query(self):
+        self.init()
+        url = '/statistics/students/query'
+        post_data = {
+            "student_id": 12345678,
+            "node_id":1
+        }
+        expected_result = {
+            'accuracy': 0.5
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_result)
+
 
